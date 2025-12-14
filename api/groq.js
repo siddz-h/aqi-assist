@@ -1,20 +1,22 @@
-export async function POST(request) {
+// api/groq.js – Vercel Serverless Function
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Only POST allowed" });
+  }
+
   try {
-    const { city } = await request.json();
+    const { city } = req.body || {};
 
     if (!city) {
-      return Response.json(
-        { error: "City is required" },
-        { status: 400 }
-      );
+      return res.status(400).json({ error: "City is required" });
     }
 
     if (!process.env.GROQ_API_KEY) {
       console.error("GROQ_API_KEY missing on server");
-      return Response.json(
-        { error: "Server API key not configured" },
-        { status: 500 }
-      );
+      return res
+        .status(500)
+        .json({ error: "Server API key not configured" });
     }
 
     const response = await fetch(
@@ -41,21 +43,21 @@ export async function POST(request) {
     console.log("Groq response:", response.status, data);
 
     if (!response.ok) {
-      return Response.json(
-        { error: "Groq API error", detail: data },
-        { status: response.status }
-      );
+      return res.status(response.status).json({
+        error: "Groq API error",
+        detail: data,
+      });
     }
 
     const reply =
       data?.choices?.[0]?.message?.content || "No AI reply from model";
 
-    return Response.json({ reply }, { status: 200 });
+    return res.status(200).json({ reply });
   } catch (err) {
     console.error("Handler error:", err);
-    return Response.json(
-      { error: "Server error", detail: String(err) },
-      { status: 500 }
-    );
+    return res.status(500).json({
+      error: "Server error",
+      detail: String(err),
+    });
   }
 }
