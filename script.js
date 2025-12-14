@@ -16,7 +16,7 @@ async function send() {
   chat.scrollTop = chat.scrollHeight;
 
   try {
-    const response = await fetch("/api/gemini", {
+    const response = await fetch("/api/groq", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ city })
@@ -30,3 +30,4 @@ async function send() {
 
   chat.scrollTop = chat.scrollHeight;
 }
+
