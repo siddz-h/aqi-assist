@@ -1,13 +1,13 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST requests allowed" });
+    return res.status(405).json({ error: "Only POST allowed" });
   }
 
   const { city } = req.body;
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -16,15 +16,16 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [
             {
+              role: "user",
               parts: [
                 {
                   text: `Give an AQI report for ${city}.
 Include:
-- AQI level
+- Estimated AQI level
 - Health impact
 - Precautions
 - Why AQI is important
-Use simple language.`,
+Use simple, clear language.`,
                 },
               ],
             },
@@ -34,12 +35,18 @@ Use simple language.`,
     );
 
     const data = await response.json();
+
     const reply =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn't generate a response.";
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!reply) {
+      return res.status(200).json({
+        reply: "AI could not generate a response. Please try again.",
+      });
+    }
 
     res.status(200).json({ reply });
   } catch (error) {
-    res.status(500).json({ error: "Gemini API error" });
+    res.status(500).json({ reply: "Server error connecting to Gemini AI." });
   }
 }
