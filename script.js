@@ -5,8 +5,10 @@ async function send() {
 
   const chat = document.getElementById("chat");
 
+  // User message
   chat.innerHTML += `<div class="message user">${city}</div>`;
 
+  // AI placeholder
   const aiMsg = document.createElement("div");
   aiMsg.className = "message ai";
   aiMsg.innerText = "Thinking...";
@@ -18,7 +20,9 @@ async function send() {
   try {
     const response = await fetch("/api/groq", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ city })
     });
 
@@ -30,4 +34,3 @@ async function send() {
 
   chat.scrollTop = chat.scrollHeight;
 }
-
