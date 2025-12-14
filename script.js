@@ -1,4 +1,5 @@
-async function send() {
+// Expose send() globally so the button onclick can call it
+window.send = async function send() {
   const input = document.getElementById("city");
   const city = input.value.trim();
   if (!city) return;
@@ -20,17 +21,22 @@ async function send() {
   try {
     const response = await fetch("/api/groq", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ city })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city }),
     });
 
     const data = await response.json();
-    aiMsg.innerText = data.reply || "No AI response.";
+    // Show useful error text if reply is missing
+    aiMsg.innerText =
+      data.reply ||
+      data.error ||
+      (typeof data.detail === "string"
+        ? data.detail
+        : JSON.stringify(data)) ||
+      "No AI response.";
   } catch (error) {
-    aiMsg.innerText = "Error connecting to AI.";
+    aiMsg.innerText = "Error connecting to server.";
   }
 
   chat.scrollTop = chat.scrollHeight;
-}
+};
