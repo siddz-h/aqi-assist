@@ -1,15 +1,11 @@
-// Expose send() globally so the button onclick can call it
 window.send = async function send() {
   const input = document.getElementById("city");
   const city = input.value.trim();
   if (!city) return;
 
   const chat = document.getElementById("chat");
-
-  // User message
   chat.innerHTML += `<div class="message user">${city}</div>`;
 
-  // AI placeholder
   const aiMsg = document.createElement("div");
   aiMsg.className = "message ai";
   aiMsg.innerText = "Thinking...";
@@ -26,7 +22,6 @@ window.send = async function send() {
     });
 
     const data = await response.json();
-    // Show useful error text if reply is missing
     aiMsg.innerText =
       data.reply ||
       data.error ||
